@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Edit, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 
 interface CalendarEvent {
   id: string;
@@ -32,7 +32,6 @@ const Calendar = () => {
     event_time: '',
     category: 'ander'
   });
-  const { toast } = useToast();
 
   const monthNames = [
     'Januarie', 'Februarie', 'Maart', 'April', 'Mei', 'Junie',
@@ -42,14 +41,13 @@ const Calendar = () => {
   const dayNames = ['Sondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrydag', 'Saterdag'];
 
   const categories = {
-    vergadering: { label: '📋 Vergadering', color: 'bg-bko-warm-brown' },
+    vergadering: { label: '📋 Vergadering', color: 'bg-red-600' },
     sport: { label: '⚽ Sport', color: 'bg-orange-500' },
     'groen-uur': { label: '🌱 Groen Uur', color: 'bg-green-500' },
-    stoof: { label: '🍽️ STOOF', color: 'bg-bko-secondary-green' },
-    ketel: { label: '☕ KETEL', color: 'bg-bko-accent-blue' },
-    ander: { label: '📌 Ander', color: 'bg-bko-deep-brown' }
+    stoof: { label: '🍽️ STOOF', color: 'bg-blue-600' },
+    ketel: { label: '☕ KETEL', color: 'bg-purple-600' },
+    ander: { label: '📌 Ander', color: 'bg-gray-600' }
   };
-
   useEffect(() => {
     fetchEvents();
     
@@ -74,11 +72,7 @@ const Calendar = () => {
       .order('event_date', { ascending: true });
 
     if (error) {
-      toast({
-        title: "Fout",
-        description: "Kon nie gebeurtenisse laai nie",
-        variant: "destructive",
-      });
+      toast("Fout: Kon nie gebeurtenisse laai nie");
     } else {
       setEvents(data || []);
     }
@@ -86,11 +80,7 @@ const Calendar = () => {
 
   const addEvent = async () => {
     if (!selectedDate || !eventForm.title.trim()) {
-      toast({
-        title: "Fout",
-        description: "Vul asseblief alle verpligte velde in",
-        variant: "destructive",
-      });
+      toast("Fout: Vul asseblief alle verpligte velde in");
       return;
     }
 
@@ -105,16 +95,9 @@ const Calendar = () => {
       }]);
 
     if (error) {
-      toast({
-        title: "Fout",
-        description: "Kon nie gebeurtenis voeg nie",
-        variant: "destructive",
-      });
+      toast("Fout: Kon nie gebeurtenis voeg nie");
     } else {
-      toast({
-        title: "Sukses",
-        description: "Gebeurtenis suksesvol bygevoeg",
-      });
+      toast("Sukses: Gebeurtenis suksesvol bygevoeg");
       setIsDialogOpen(false);
       setEventForm({ title: '', description: '', event_time: '', category: 'ander' });
       setSelectedDate(null);
