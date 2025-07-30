@@ -41,12 +41,12 @@ const Calendar = () => {
   const dayNames = ['Sondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrydag', 'Saterdag'];
 
   const categories = {
-    vergadering: { label: '📋 Vergadering', color: 'bg-red-600' },
-    sport: { label: '⚽ Sport', color: 'bg-orange-500' },
-    'groen-uur': { label: '🌱 Groen Uur', color: 'bg-green-500' },
-    stoof: { label: '🍽️ STOOF', color: 'bg-blue-600' },
-    ketel: { label: '☕ KETEL', color: 'bg-purple-600' },
-    ander: { label: '📌 Ander', color: 'bg-gray-600' }
+    vergadering: { label: '📋 Vergadering', color: 'bg-destructive', textColor: 'text-destructive-foreground' },
+    sport: { label: '⚽ Sport', color: 'bg-orange-500', textColor: 'text-white' },
+    'groen-uur': { label: '🌱 Groen Uur', color: 'bg-accent', textColor: 'text-accent-foreground' },
+    stoof: { label: '🍽️ STOOF', color: 'bg-secondary', textColor: 'text-secondary-foreground' },
+    ketel: { label: '☕ KETEL', color: 'bg-purple-600', textColor: 'text-white' },
+    ander: { label: '📌 Ander', color: 'bg-primary', textColor: 'text-primary-foreground' }
   };
   useEffect(() => {
     fetchEvents();
@@ -149,29 +149,32 @@ const Calendar = () => {
   const days = getDaysInMonth(currentDate);
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-background to-muted/30">
       <CardContent className="p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigateMonth('prev')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105"
           >
             <ChevronLeft className="h-4 w-4" />
             Vorige
           </Button>
           
-          <h2 className="text-2xl font-bold text-center">
-            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </h2>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">BKO Studentesake Kalender</p>
+          </div>
           
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigateMonth('next')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105"
           >
             Volgende
             <ChevronRight className="h-4 w-4" />
@@ -179,10 +182,10 @@ const Calendar = () => {
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-3 p-2">
           {/* Day headers */}
           {dayNames.map((day) => (
-            <div key={day} className="p-3 text-center font-semibold bg-bko-primary text-white rounded">
+            <div key={day} className="p-4 text-center font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-xl shadow-sm">
               {day.slice(0, 3)}
             </div>
           ))}
@@ -191,29 +194,35 @@ const Calendar = () => {
           {days.map((date, index) => (
             <div
               key={index}
-              className={`min-h-[120px] p-2 border rounded cursor-pointer transition-colors
-                ${date ? 'hover:bg-bko-light/50' : ''}
-                ${date && isToday(date) ? 'bg-bko-accent-blue/20 border-bko-accent-blue' : 'border-gray-200'}
+              className={`min-h-[140px] p-3 rounded-xl cursor-pointer transition-all duration-300 transform
+                ${date ? 'hover:shadow-lg hover:scale-105 hover:-translate-y-1 bg-card border border-border/50 hover:border-primary/30' : ''}
+                ${date && isToday(date) ? 'bg-gradient-to-br from-primary/10 to-accent/10 border-primary shadow-lg ring-2 ring-primary/20' : ''}
+                ${!date ? 'opacity-0 pointer-events-none' : ''}
               `}
               onClick={() => date && handleDateClick(date)}
             >
               {date && (
                 <>
-                  <div className={`text-sm font-medium mb-2 ${isToday(date) ? 'text-bko-accent-blue font-bold' : ''}`}>
+                  <div className={`text-lg font-bold mb-3 flex items-center justify-center w-8 h-8 rounded-full transition-colors
+                    ${isToday(date) ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'}
+                  `}>
                     {date.getDate()}
                   </div>
-                  <div className="space-y-1">
-                    {getEventsForDate(date).slice(0, 3).map((event) => (
-                      <Badge
-                        key={event.id}
-                        variant="secondary"
-                        className={`text-xs text-white block truncate ${categories[event.category as keyof typeof categories]?.color || 'bg-gray-500'}`}
-                      >
-                        {event.title}
-                      </Badge>
-                    ))}
+                  <div className="space-y-1.5">
+                    {getEventsForDate(date).slice(0, 3).map((event) => {
+                      const category = categories[event.category as keyof typeof categories] || categories.ander;
+                      return (
+                        <Badge
+                          key={event.id}
+                          className={`text-xs block truncate px-2 py-1 rounded-md shadow-sm hover:shadow-md transition-shadow ${category.color} ${category.textColor}`}
+                        >
+                          <span className="mr-1">{category.label.split(' ')[0]}</span>
+                          {event.title}
+                        </Badge>
+                      );
+                    })}
                     {getEventsForDate(date).length > 3 && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs bg-muted/50 hover:bg-muted">
                         +{getEventsForDate(date).length - 3} meer
                       </Badge>
                     )}
@@ -226,13 +235,13 @@ const Calendar = () => {
 
         {/* Add Event Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md bg-gradient-to-br from-background to-muted/30 border-0 shadow-2xl">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Voeg Gebeurtenis By
                 {selectedDate && (
-                  <span className="block text-sm font-normal text-gray-600 mt-1">
-                    {selectedDate.toLocaleDateString('af-ZA', { 
+                  <span className="block text-sm font-normal text-muted-foreground mt-2 bg-gradient-to-r from-muted to-muted/50 bg-clip-text text-transparent">
+                    📅 {selectedDate.toLocaleDateString('af-ZA', { 
                       weekday: 'long', 
                       year: 'numeric', 
                       month: 'long', 
@@ -291,12 +300,19 @@ const Calendar = () => {
                 />
               </div>
               
-              <div className="flex gap-2 pt-4">
-                <Button onClick={addEvent} className="flex-1">
-                  Stoor
+              <div className="flex gap-3 pt-6">
+                <Button 
+                  onClick={addEvent} 
+                  className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                >
+                  💾 Stoor
                 </Button>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
-                  Kanselleer
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)} 
+                  className="flex-1 hover:bg-muted/50 transition-all duration-200"
+                >
+                  ❌ Kanselleer
                 </Button>
               </div>
             </div>
