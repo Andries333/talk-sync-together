@@ -84,23 +84,35 @@ const Calendar = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from('calendar_events')
-      .insert([{
-        title: eventForm.title.trim(),
-        description: eventForm.description.trim() || null,
-        event_date: selectedDate.toISOString().split('T')[0],
-        event_time: eventForm.event_time || null,
-        category: eventForm.category
-      }]);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast("Fout: Jy moet aangemeld wees om gebeurtenisse by te voeg");
+        return;
+      }
 
-    if (error) {
+      const { error } = await supabase
+        .from('calendar_events')
+        .insert([{
+          title: eventForm.title.trim(),
+          description: eventForm.description.trim() || null,
+          event_date: selectedDate.toISOString().split('T')[0],
+          event_time: eventForm.event_time || null,
+          category: eventForm.category,
+          created_by: user.id
+        }]);
+
+      if (error) {
+        toast("Fout: Kon nie gebeurtenis voeg nie");
+      } else {
+        toast("Sukses: Gebeurtenis suksesvol bygevoeg");
+        setIsDialogOpen(false);
+        setEventForm({ title: '', description: '', event_time: '', category: 'ander' });
+        setSelectedDate(null);
+      }
+    } catch (error) {
       toast("Fout: Kon nie gebeurtenis voeg nie");
-    } else {
-      toast("Sukses: Gebeurtenis suksesvol bygevoeg");
-      setIsDialogOpen(false);
-      setEventForm({ title: '', description: '', event_time: '', category: 'ander' });
-      setSelectedDate(null);
     }
   };
 
