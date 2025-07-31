@@ -56,33 +56,48 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          koshuis: string | null
           last_name: string | null
+          posisie: string | null
           posisie_hk_sr: string | null
+          profile_completion_count: number | null
           studierigting: string | null
+          telefoonnommer: string | null
           updated_at: string
           user_id: string
+          verjaarsdag: string | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           first_name?: string | null
           id?: string
+          koshuis?: string | null
           last_name?: string | null
+          posisie?: string | null
           posisie_hk_sr?: string | null
+          profile_completion_count?: number | null
           studierigting?: string | null
+          telefoonnommer?: string | null
           updated_at?: string
           user_id: string
+          verjaarsdag?: string | null
         }
         Update: {
           created_at?: string
           email?: string | null
           first_name?: string | null
           id?: string
+          koshuis?: string | null
           last_name?: string | null
+          posisie?: string | null
           posisie_hk_sr?: string | null
+          profile_completion_count?: number | null
           studierigting?: string | null
+          telefoonnommer?: string | null
           updated_at?: string
           user_id?: string
+          verjaarsdag?: string | null
         }
         Relationships: []
       }
