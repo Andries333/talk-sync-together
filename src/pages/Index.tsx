@@ -1,20 +1,97 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Bell, Home } from "lucide-react";
+import { Calendar, Users, Bell, Home, Star, Heart } from "lucide-react";
 import CalendarComponent from "@/components/Calendar";
 import UserProfile from "@/components/UserProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Fetch profile data when user logs in
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const getDisplayName = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else if (profile?.first_name) {
+      return profile.first_name;
+    } else if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'Vriend';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Laai...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground shadow-lg">
+      <header className="bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground shadow-lg border-b border-border/20">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-center">Vaalbos Huiskomitee</h1>
-          <p className="text-center mt-2 opacity-90">Gemeenskapsapp vir Vaalbos inwoners</p>
+          <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-primary-foreground to-accent-foreground bg-clip-text text-transparent">🎓 BKO Studentesake</h1>
+          <p className="text-center mt-2 opacity-90">Admin Sisteem vir Leierskap en Studentesake</p>
         </div>
       </header>
 
@@ -46,9 +123,41 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         {activeTab === "home" && (
           <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Welkom by die Vaalbos Gemeenskap!</h2>
-              <p className="text-muted-foreground">Bly op hoogte van belangrike datums, gebeure en kennisgewings</p>
+            {/* Personalized Welcome Message */}
+            <div className="bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 rounded-2xl p-6 md:p-8 mb-8 border border-border/20 shadow-lg">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center items-center space-x-3 mb-4">
+                  <Star className="text-accent h-8 w-8 animate-pulse" />
+                  <Heart className="text-primary h-6 w-6" />
+                  <Star className="text-secondary h-8 w-8 animate-pulse" />
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
+                  Welkom, {getDisplayName()}!
+                </h2>
+                
+                <div className="max-w-2xl mx-auto">
+                  <p className="text-lg md:text-xl text-foreground/90 font-medium leading-relaxed">
+                    Jy is nou in die BKO Adminstelsel vir Studentesake en Leierskap.
+                  </p>
+                  <p className="text-base md:text-lg text-muted-foreground mt-2 font-medium">
+                    Bly op hoogte, bou saam, groei saam. 🌱
+                  </p>
+                </div>
+                
+                {profile?.studierigting && (
+                  <div className="mt-4 pt-4 border-t border-border/30">
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-accent">Studierigting:</span> {profile.studierigting}
+                    </p>
+                    {profile?.posisie_hk_sr && (
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold text-secondary">Posisie:</span> {profile.posisie_hk_sr}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -155,7 +264,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-muted text-muted-foreground mt-16">
         <div className="container mx-auto px-4 py-6 text-center">
-          <p>&copy; 2024 Vaalbos Huiskomitee. Alle regte voorbehou.</p>
+          <p>&copy; 2024 BKO Studentesake. Alle regte voorbehou.</p>
         </div>
       </footer>
     </div>
