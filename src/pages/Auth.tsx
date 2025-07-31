@@ -150,7 +150,7 @@ const Auth = () => {
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             🎓 BKO Studentesake
           </CardTitle>
-          <p className="text-muted-foreground">Welkom by die kalender sisteem</p>
+          <p className="text-muted-foreground">Welkom by die admin sisteem van BKO Leiers en Studentesake Personeel.</p>
         </CardHeader>
         
         <CardContent>
