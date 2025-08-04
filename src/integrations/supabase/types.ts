@@ -50,6 +50,24 @@ export type Database = {
         }
         Relationships: []
       }
+      koshuis_options: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -58,8 +76,10 @@ export type Database = {
           id: string
           koshuis: string | null
           last_name: string | null
+          login_count: number | null
           posisie: string | null
           posisie_hk_sr: string | null
+          profile_completed_at: string | null
           profile_completion_count: number | null
           studierigting: string | null
           telefoonnommer: string | null
@@ -74,8 +94,10 @@ export type Database = {
           id?: string
           koshuis?: string | null
           last_name?: string | null
+          login_count?: number | null
           posisie?: string | null
           posisie_hk_sr?: string | null
+          profile_completed_at?: string | null
           profile_completion_count?: number | null
           studierigting?: string | null
           telefoonnommer?: string | null
@@ -90,8 +112,10 @@ export type Database = {
           id?: string
           koshuis?: string | null
           last_name?: string | null
+          login_count?: number | null
           posisie?: string | null
           posisie_hk_sr?: string | null
+          profile_completed_at?: string | null
           profile_completion_count?: number | null
           studierigting?: string | null
           telefoonnommer?: string | null
@@ -101,12 +125,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sr_hk_options: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      studierigting_options: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_login_count: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
