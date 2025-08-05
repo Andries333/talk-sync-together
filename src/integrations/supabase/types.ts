@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_checkins: {
+        Row: {
+          check_in_date: string
+          created_at: string
+          id: string
+          mood_label: string
+          mood_rating: number
+          questions_suggestions: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          check_in_date?: string
+          created_at?: string
+          id?: string
+          mood_label: string
+          mood_rating: number
+          questions_suggestions?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          check_in_date?: string
+          created_at?: string
+          id?: string
+          mood_label?: string
+          mood_rating?: number
+          questions_suggestions?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       koshuis_options: {
         Row: {
           created_at: string | null
@@ -169,6 +202,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_monthly_honorarium_impact: {
+        Args: { p_user_id: string; p_year?: number; p_month?: number }
+        Returns: number
+      }
       increment_login_count: {
         Args: { user_uuid: string }
         Returns: undefined

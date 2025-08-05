@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Bell, Home, Star, Heart, UserCheck } from "lucide-react";
+import { Calendar, Users, Bell, Home, Star, Heart, UserCheck, BarChart3 } from "lucide-react";
 import CalendarComponent from "@/components/Calendar";
 import UserProfile from "@/components/UserProfile";
 import UserTable from "@/components/UserTable";
+import DailyCheckIn from "@/components/DailyCheckIn";
+import AdminCheckInDashboard from "@/components/AdminCheckInDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -116,8 +118,10 @@ const Index = () => {
           <div className="flex justify-center space-x-1 py-3">
             {[
               { id: "home", label: "Tuis", icon: Home },
+              { id: "checkin", label: "Incheck", icon: Heart },
               { id: "calendar", label: "Kalender", icon: Calendar },
               { id: "users", label: "Gebruikers", icon: UserCheck },
+              ...(profile?.posisie === 'HK' || profile?.posisie === 'Personeel' ? [{ id: "admin", label: "Admin", icon: BarChart3 }] : []),
               { id: "profile", label: "Profiel", icon: Users },
               { id: "notifications", label: "Kennisgewings", icon: Bell },
             ].map(({ id, label, icon: Icon }) => (
@@ -176,7 +180,25 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-primary">
+                    <Heart size={24} />
+                    <span>Daaglikse Incheck</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Deel jou dag en bou aan jou honorarium</p>
+                  <Button 
+                    className="mt-4 w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90" 
+                    onClick={() => setActiveTab("checkin")}
+                  >
+                    Check In
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-primary">
@@ -237,6 +259,18 @@ const Index = () => {
           </div>
         )}
 
+        {activeTab === "checkin" && (
+          <div>
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Daaglikse Incheck</h2>
+              <p className="text-muted-foreground">Deel jou dag met ons en bou aan jou honorarium</p>
+            </div>
+            <div className="flex justify-center">
+              <DailyCheckIn />
+            </div>
+          </div>
+        )}
+
         {activeTab === "calendar" && (
           <div>
             <div className="mb-6 text-center">
@@ -266,6 +300,16 @@ const Index = () => {
               <p className="text-muted-foreground">Volledig sorteerbare en deursoekbare lys van alle geregistreerde gebruikers</p>
             </div>
             <UserTable />
+          </div>
+        )}
+
+        {activeTab === "admin" && (profile?.posisie === 'HK' || profile?.posisie === 'Personeel') && (
+          <div>
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Admin Dashboard</h2>
+              <p className="text-muted-foreground">Bestuur daaglikse inchecks en honorarium impakte</p>
+            </div>
+            <AdminCheckInDashboard />
           </div>
         )}
 
