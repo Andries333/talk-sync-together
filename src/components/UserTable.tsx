@@ -85,12 +85,12 @@ const UserTable = () => {
     }
 
     // Apply koshuis filter
-    if (filterKoshuis) {
+    if (filterKoshuis && filterKoshuis !== 'all') {
       filtered = filtered.filter(user => user.koshuis === filterKoshuis);
     }
 
     // Apply posisie filter
-    if (filterPosisie) {
+    if (filterPosisie && filterPosisie !== 'all') {
       filtered = filtered.filter(user => user.posisie === filterPosisie);
     }
 
@@ -220,7 +220,7 @@ const UserTable = () => {
               <SelectValue placeholder="Filter op koshuis" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Alle koshuise</SelectItem>
+              <SelectItem value="all">Alle koshuise</SelectItem>
               {KOSHUIS_OPTIONS.map((koshuis) => (
                 <SelectItem key={koshuis} value={koshuis}>
                   {koshuis}
@@ -234,7 +234,7 @@ const UserTable = () => {
               <SelectValue placeholder="Filter op posisie" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Alle posisies</SelectItem>
+              <SelectItem value="all">Alle posisies</SelectItem>
               {POSISIE_OPTIONS.map((posisie) => (
                 <SelectItem key={posisie} value={posisie}>
                   {posisie}
