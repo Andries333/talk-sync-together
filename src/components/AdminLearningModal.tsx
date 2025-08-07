@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical, Upload, File } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +49,8 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
   
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -126,6 +128,61 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
     options.splice(optionIndex, 1);
     updatedQuestions[questionIndex].options = options;
     setQuestions(updatedQuestions);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return null;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+      const filePath = `learning-content/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('learning-content')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('learning-content')
+        .getPublicUrl(filePath);
+
+      toast({
+        title: "Sukses",
+        description: "Lêer suksesvol opgelaai!",
+      });
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Fout",
+        description: "Kon nie lêer oplaai nie. Probeer weer.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFile(file);
+    const uploadedUrl = await handleFileUpload(file);
+    
+    if (uploadedUrl) {
+      setFormData({
+        ...formData,
+        content_url: uploadedUrl,
+        content_type: 'document'
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -273,14 +330,55 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
 
               <div>
                 <Label htmlFor="content_url">
-                  {formData.content_type === 'video' ? 'Video URL (YouTube of MP4)' : 'Dokument URL'}
+                  {formData.content_type === 'video' ? 'Video URL (YouTube of MP4)' : 'Dokument URL of Laai Lêer Op'}
                 </Label>
-                <Input
-                  id="content_url"
-                  value={formData.content_url}
-                  onChange={(e) => setFormData({...formData, content_url: e.target.value})}
-                  placeholder={formData.content_type === 'video' ? 'https://youtube.com/watch?v=...' : 'https://example.com/document.pdf'}
-                />
+                <div className="space-y-2">
+                  <Input
+                    id="content_url"
+                    value={formData.content_url}
+                    onChange={(e) => setFormData({...formData, content_url: e.target.value})}
+                    placeholder={formData.content_type === 'video' ? 'https://youtube.com/watch?v=...' : 'https://example.com/document.pdf'}
+                  />
+                  
+                  {formData.content_type === 'document' && (
+                    <div className="flex items-center justify-center w-full">
+                      <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          {uploading ? (
+                            <div className="flex items-center space-x-2">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                              <span className="text-sm text-muted-foreground">Laai op...</span>
+                            </div>
+                          ) : uploadedFile ? (
+                            <div className="flex items-center space-x-2">
+                              <File className="w-8 h-8 text-primary" />
+                              <div className="text-center">
+                                <p className="text-sm font-medium text-foreground">{uploadedFile.name}</p>
+                                <p className="text-xs text-muted-foreground">Suksesvol opgelaai</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                              <p className="mb-2 text-sm text-muted-foreground">
+                                <span className="font-semibold">Klik om lêer op te laai</span> of sleep hier
+                              </p>
+                              <p className="text-xs text-muted-foreground">PDF, PPT, DOC, MP4 (Max. 50MB)</p>
+                            </>
+                          )}
+                        </div>
+                        <input 
+                          id="file-upload" 
+                          type="file" 
+                          className="hidden" 
+                          onChange={handleFileChange}
+                          accept=".pdf,.ppt,.pptx,.doc,.docx,.mp4,.avi,.mov"
+                          disabled={uploading}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center space-x-2">
