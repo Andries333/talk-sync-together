@@ -101,6 +101,86 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          id: string
+          learning_unit_id: string
+          options: Json | null
+          order_index: number
+          points: number
+          question_text: string
+          question_type: string
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          id?: string
+          learning_unit_id: string
+          options?: Json | null
+          order_index?: number
+          points?: number
+          question_text: string
+          question_type: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          id?: string
+          learning_unit_id?: string
+          options?: Json | null
+          order_index?: number
+          points?: number
+          question_text?: string
+          question_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_questions_learning_unit_id_fkey"
+            columns: ["learning_unit_id"]
+            isOneToOne: false
+            referencedRelation: "learning_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_units: {
+        Row: {
+          content_type: string
+          content_url: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          content_url: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          content_url?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -196,6 +276,47 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      user_learning_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          learning_unit_id: string
+          test_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          learning_unit_id: string
+          test_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          learning_unit_id?: string
+          test_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_progress_learning_unit_id_fkey"
+            columns: ["learning_unit_id"]
+            isOneToOne: false
+            referencedRelation: "learning_units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

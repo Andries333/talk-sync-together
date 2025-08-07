@@ -64,22 +64,22 @@ const LearningPlan = () => {
 
       // Fetch learning units
       const { data: unitsData, error: unitsError } = await supabase
-        .from('learning_units')
+        .from('learning_units' as any)
         .select('*')
         .eq('is_active', true)
         .order('order_index');
 
       if (unitsError) throw unitsError;
-      setLearningUnits(unitsData || []);
+      setLearningUnits((unitsData as any) || []);
 
       // Fetch user progress
       const { data: progressData, error: progressError } = await supabase
-        .from('user_learning_progress')
+        .from('user_learning_progress' as any)
         .select('*')
         .eq('user_id', user.id);
 
       if (progressError) throw progressError;
-      setUserProgress(progressData || []);
+      setUserProgress((progressData as any) || []);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -118,7 +118,7 @@ const LearningPlan = () => {
 
       // Update or create progress record
       const { error } = await supabase
-        .from('user_learning_progress')
+        .from('user_learning_progress' as any)
         .upsert({
           user_id: user.id,
           learning_unit_id: unitId,

@@ -45,13 +45,13 @@ const LearningTestModal = ({ learningUnitId, onComplete, onClose }: LearningTest
   const fetchQuestions = async () => {
     try {
       const { data, error } = await supabase
-        .from('learning_questions')
+        .from('learning_questions' as any)
         .select('*')
         .eq('learning_unit_id', learningUnitId)
         .order('order_index');
 
       if (error) throw error;
-      setQuestions(data || []);
+      setQuestions((data as any) || []);
     } catch (error) {
       console.error('Error fetching questions:', error);
       toast({

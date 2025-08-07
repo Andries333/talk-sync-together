@@ -70,13 +70,13 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
     
     try {
       const { data, error } = await supabase
-        .from('learning_questions')
+        .from('learning_questions' as any)
         .select('*')
         .eq('learning_unit_id', unit.id)
         .order('order_index');
 
       if (error) throw error;
-      setQuestions(data || []);
+      setQuestions((data as any) || []);
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
@@ -146,7 +146,7 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
       if (unit) {
         // Update existing unit
         const { error: updateError } = await supabase
-          .from('learning_units')
+          .from('learning_units' as any)
           .update(formData)
           .eq('id', unit.id);
 
@@ -155,7 +155,7 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
 
         // Delete existing questions
         const { error: deleteError } = await supabase
-          .from('learning_questions')
+          .from('learning_questions' as any)
           .delete()
           .eq('learning_unit_id', unit.id);
 
@@ -163,13 +163,13 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
       } else {
         // Create new unit
         const { data: newUnit, error: createError } = await supabase
-          .from('learning_units')
+          .from('learning_units' as any)
           .insert(formData)
           .select()
           .single();
 
         if (createError) throw createError;
-        learningUnitId = newUnit.id;
+        learningUnitId = (newUnit as any).id;
       }
 
       // Insert questions
@@ -181,7 +181,7 @@ const AdminLearningModal = ({ unit, onClose, onSuccess }: AdminLearningModalProp
         }));
 
         const { error: questionsError } = await supabase
-          .from('learning_questions')
+          .from('learning_questions' as any)
           .insert(questionsToInsert);
 
         if (questionsError) throw questionsError;
