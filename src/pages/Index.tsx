@@ -8,6 +8,8 @@ import UserTable from "@/components/UserTable";
 import DailyCheckIn from "@/components/DailyCheckIn";
 import AdminCheckInDashboard from "@/components/AdminCheckInDashboard";
 import LearningPlan from "@/components/LearningPlan";
+import NotificationCenter from "@/components/NotificationCenter";
+import NotificationPopup from "@/components/NotificationPopup";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -326,22 +328,31 @@ const Index = () => {
         )}
 
         {activeTab === "notifications" && (
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-secondary">Kennisgewings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Bell size={64} className="mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">Kennisgewings sal hier kom</p>
-                <p className="text-sm text-muted-foreground">
-                  Supabase moet eers gekoppel word vir real-time kennisgewings
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div>
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Kennisgewings</h2>
+              <p className="text-muted-foreground">Stuur en ontvang belangrike aankondigings</p>
+            </div>
+            <div className="flex justify-center mb-6">
+              <NotificationCenter />
+            </div>
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-secondary">Onlangse Kennisgewings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Bell size={64} className="mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-4">Jy sal hier kennisgewings sien wanneer daar nuwe aankondigings is</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </main>
+
+      {/* Notification Popup */}
+      <NotificationPopup />
 
       {/* Footer */}
       <footer className="bg-muted text-muted-foreground mt-16">
