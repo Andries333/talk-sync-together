@@ -25,6 +25,7 @@ interface CalendarEvent {
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [birthdays, setBirthdays] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [eventForm, setEventForm] = useState({
@@ -47,7 +48,8 @@ const Calendar = () => {
     'groen-uur': { label: '🌱 Groen Uur', color: 'bg-accent', textColor: 'text-accent-foreground' },
     stoof: { label: '🍽️ STOOF', color: 'bg-secondary', textColor: 'text-secondary-foreground' },
     ketel: { label: '☕ KETEL', color: 'bg-purple-600', textColor: 'text-white' },
-    ander: { label: '📌 Ander', color: 'bg-primary', textColor: 'text-primary-foreground' }
+    ander: { label: '📌 Ander', color: 'bg-primary', textColor: 'text-primary-foreground' },
+    verjaarsdag: { label: '🎂 Verjaarsdag', color: 'bg-accent', textColor: 'text-accent-foreground' }
   };
   
   const isMobile = useIsMobile();
@@ -102,6 +104,44 @@ const Calendar = () => {
       setEvents(data || []);
     }
   };
+
+  const fetchBirthdays = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('user_id, first_name, last_name, verjaarsdag')
+      .not('verjaarsdag', 'is', null);
+
+    if (error) {
+      return;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const result: CalendarEvent[] = [];
+
+    (data || []).forEach((p: any) => {
+      if (!p.verjaarsdag) return;
+      const dob = new Date(p.verjaarsdag);
+      const birthdayThisYear = new Date(year, dob.getMonth(), dob.getDate());
+      if (birthdayThisYear.getMonth() !== month) return;
+      const age = year - dob.getFullYear();
+      const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || 'Onbekend';
+      result.push({
+        id: `bday-${p.user_id}-${year}`,
+        title: `${name} verjaar ${age}`,
+        event_date: birthdayThisYear.toISOString().split('T')[0],
+        event_time: undefined,
+        category: 'verjaarsdag',
+        created_by: p.user_id,
+      });
+    });
+
+    setBirthdays(result);
+  };
+
+  useEffect(() => {
+    fetchBirthdays();
+  }, [currentDate]);
 
   const addEvent = async () => {
     if (!selectedDate || !eventForm.title.trim()) {
@@ -166,7 +206,10 @@ const Calendar = () => {
 
   const getEventsForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
-    return events.filter(event => event.event_date === dateString);
+    return [
+      ...events.filter(event => event.event_date === dateString),
+      ...birthdays.filter(event => event.event_date === dateString),
+    ];
   };
 
   const isToday = (date: Date) => {
