@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -10,6 +10,7 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarEvent {
   id: string;
@@ -48,6 +49,30 @@ const Calendar = () => {
     ketel: { label: '☕ KETEL', color: 'bg-purple-600', textColor: 'text-white' },
     ander: { label: '📌 Ander', color: 'bg-primary', textColor: 'text-primary-foreground' }
   };
+  
+  const isMobile = useIsMobile();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchCurrentRef = useRef<{ x: number; y: number } | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+    touchCurrentRef.current = touchStartRef.current;
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchCurrentRef.current = { x: t.clientX, y: t.clientY };
+  };
+  const handleTouchEnd = () => {
+    if (!touchStartRef.current || !touchCurrentRef.current) return;
+    const dx = touchCurrentRef.current.x - touchStartRef.current.x;
+    const dy = touchCurrentRef.current.y - touchStartRef.current.y;
+    if (Math.abs(dx) > 50 && Math.abs(dy) < 30) {
+      navigateMonth(dx < 0 ? 'next' : 'prev');
+    }
+    touchStartRef.current = null;
+    touchCurrentRef.current = null;
+  };
+
   useEffect(() => {
     fetchEvents();
     
@@ -194,55 +219,75 @@ const Calendar = () => {
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-3 p-2">
+        <div
+          className="grid grid-cols-7 gap-1 sm:gap-3 p-1 sm:p-2 select-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Day headers */}
           {dayNames.map((day) => (
-            <div key={day} className="p-4 text-center font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-xl shadow-sm">
-              {day.slice(0, 3)}
+            <div
+              key={day}
+              className="p-2 sm:p-4 text-center font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-xl shadow-sm text-[10px] sm:text-base"
+            >
+              {isMobile ? day.slice(0, 1) : day.slice(0, 3)}
             </div>
           ))}
           
           {/* Calendar days */}
-          {days.map((date, index) => (
-            <div
-              key={index}
-              className={`min-h-[140px] p-3 rounded-xl cursor-pointer transition-all duration-300 transform
-                ${date ? 'hover:shadow-lg hover:scale-105 hover:-translate-y-1 bg-card border border-border/50 hover:border-primary/30' : ''}
-                ${date && isToday(date) ? 'bg-gradient-to-br from-primary/10 to-accent/10 border-primary shadow-lg ring-2 ring-primary/20' : ''}
-                ${!date ? 'opacity-0 pointer-events-none' : ''}
-              `}
-              onClick={() => date && handleDateClick(date)}
-            >
-              {date && (
-                <>
-                  <div className={`text-lg font-bold mb-3 flex items-center justify-center w-8 h-8 rounded-full transition-colors
-                    ${isToday(date) ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'}
-                  `}>
-                    {date.getDate()}
-                  </div>
-                  <div className="space-y-1.5">
-                    {getEventsForDate(date).slice(0, 3).map((event) => {
-                      const category = categories[event.category as keyof typeof categories] || categories.ander;
-                      return (
-                        <Badge
-                          key={event.id}
-                          className={`text-xs block truncate px-2 py-1 rounded-md shadow-sm hover:shadow-md transition-shadow ${category.color} ${category.textColor}`}
-                        >
-                          <span className="mr-1">{category.label.split(' ')[0]}</span>
-                          {event.title}
-                        </Badge>
-                      );
-                    })}
-                    {getEventsForDate(date).length > 3 && (
-                      <Badge variant="outline" className="text-xs bg-muted/50 hover:bg-muted">
-                        +{getEventsForDate(date).length - 3} meer
-                      </Badge>
+            {days.map((date, index) => (
+              <div
+                key={index}
+                className={`min-h-[72px] sm:min-h-[140px] p-1 sm:p-3 rounded-xl cursor-pointer transition-all duration-300 transform
+                  ${date ? 'hover:shadow-lg hover:scale-105 hover:-translate-y-1 bg-card border border-border/50 hover:border-primary/30' : ''}
+                  ${date && isToday(date) ? 'bg-gradient-to-br from-primary/10 to-accent/10 border-primary shadow-lg ring-2 ring-primary/20' : ''}
+                  ${!date ? 'opacity-0 pointer-events-none' : ''}
+                `}
+                onClick={() => date && handleDateClick(date)}
+              >
+                {date && (
+                  <>
+                    <div
+                      className={`text-xs sm:text-lg font-bold mb-1 sm:mb-3 flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full transition-colors
+                        ${isToday(date) ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'}
+                      `}
+                    >
+                      {date.getDate()}
+                    </div>
+                    {isMobile ? (
+                      <div className="mt-1">
+                        {getEventsForDate(date).length > 0 && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
+                            {getEventsForDate(date).length} gebeure
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {getEventsForDate(date).slice(0, 3).map((event) => {
+                          const category = categories[event.category as keyof typeof categories] || categories.ander;
+                          return (
+                            <Badge
+                              key={event.id}
+                              className={`text-xs block truncate px-2 py-1 rounded-md shadow-sm hover:shadow-md transition-shadow ${category.color} ${category.textColor}`}
+                            >
+                              <span className="mr-1">{category.label.split(' ')[0]}</span>
+                              {event.title}
+                            </Badge>
+                          );
+                        })}
+                        {getEventsForDate(date).length > 3 && (
+                          <Badge variant="outline" className="text-xs bg-muted/50 hover:bg-muted">
+                            +{getEventsForDate(date).length - 3} meer
+                          </Badge>
+                        )}
+                      </div>
                     )}
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
+                  </>
+                )}
+              </div>
+            ))}
         </div>
 
         {/* Add Event Dialog */}
