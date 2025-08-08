@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Bell, Home, Star, Heart, UserCheck, BarChart3, BookOpen } from "lucide-react";
+import { Calendar, Users, Bell, Home, Star, Heart, UserCheck, BarChart3, BookOpen, MessageSquare } from "lucide-react";
 import CalendarComponent from "@/components/Calendar";
 import UserProfile from "@/components/UserProfile";
 import UserTable from "@/components/UserTable";
@@ -10,6 +10,7 @@ import AdminCheckInDashboard from "@/components/AdminCheckInDashboard";
 import LearningPlan from "@/components/LearningPlan";
 import NotificationCenter from "@/components/NotificationCenter";
 import NotificationPopup from "@/components/NotificationPopup";
+import ChatRoom from "@/components/ChatRoom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -128,6 +129,7 @@ const Index = () => {
               ...(profile?.posisie === 'HK' || profile?.posisie === 'Personeel' ? [{ id: "admin", label: "Admin", icon: BarChart3 }] : []),
               { id: "profile", label: "Profiel", icon: Users },
               { id: "notifications", label: "Kennisgewings", icon: Bell },
+              { id: "chat", label: "Gesels 'n bietjie hier", icon: MessageSquare },
             ].map(({ id, label, icon: Icon }) => (
               <Button
                 key={id}
@@ -347,6 +349,15 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+        {activeTab === "chat" && (
+          <div>
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Gesels 'n bietjie hier</h2>
+              <p className="text-muted-foreground">Klets saam met ander lede wat aanlyn is</p>
+            </div>
+            <ChatRoom />
           </div>
         )}
       </main>

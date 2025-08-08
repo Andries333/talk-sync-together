@@ -183,6 +183,22 @@ const UserProfile = () => {
     }
   };
 
+  // Vereis personeel wagwoord wanneer 'Personeel' gekies word
+  const handlePositionChange = (value: string) => {
+    if (value === 'Personeel') {
+      const pwd = window.prompt('Voer Personeel-wagwoord in:');
+      if (pwd === 'BoKaroo123') {
+        setEditForm({ ...editForm, posisie: value });
+        toast('Sukses: Personeel bevestig');
+      } else {
+        toast('Fout: Verkeerde Personeel-wagwoord');
+        return;
+      }
+    } else {
+      setEditForm({ ...editForm, posisie: value });
+    }
+  };
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -360,7 +376,7 @@ const UserProfile = () => {
                   
                   <div>
                     <Label htmlFor="edit-posisie">Posisie *</Label>
-                    <Select value={editForm.posisie} onValueChange={(value) => setEditForm({ ...editForm, posisie: value })}>
+                    <Select value={editForm.posisie} onValueChange={handlePositionChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Kies jou posisie" />
                       </SelectTrigger>
@@ -432,8 +448,11 @@ const UserProfile = () => {
                           disabled={(date) =>
                             date > new Date() || date < new Date("1900-01-01")
                           }
+                          captionLayout="dropdown"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
                           initialFocus
-                          className="pointer-events-auto"
+                          className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
                     </Popover>
