@@ -11,6 +11,7 @@ import LearningPlan from "@/components/LearningPlan";
 import NotificationCenter from "@/components/NotificationCenter";
 import NotificationPopup from "@/components/NotificationPopup";
 import ChatRoom from "@/components/ChatRoom";
+import UpcomingEvents from "@/components/UpcomingEvents";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -214,6 +215,9 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">Sien wat aankom in ons gemeenskapskalender</p>
+                  <div className="mt-4">
+                    <UpcomingEvents />
+                  </div>
                   <Button 
                     className="mt-4 w-full" 
                     variant="outline"

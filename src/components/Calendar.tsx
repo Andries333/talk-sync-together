@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { STATIC_CALENDAR_EVENTS } from '@/staticCalendarData';
 
 interface CalendarEvent {
   id: string;
@@ -206,10 +207,17 @@ const Calendar = () => {
 
   const getEventsForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
-    return [
+    const combined = [
       ...events.filter(event => event.event_date === dateString),
       ...birthdays.filter(event => event.event_date === dateString),
+      ...STATIC_CALENDAR_EVENTS.filter(event => event.event_date === dateString),
     ];
+    const uniq = new Map<string, CalendarEvent>();
+    combined.forEach((e) => {
+      const key = `${e.event_date}|${e.title}|${e.category}`;
+      if (!uniq.has(key)) uniq.set(key, e);
+    });
+    return Array.from(uniq.values());
   };
 
   const isToday = (date: Date) => {
