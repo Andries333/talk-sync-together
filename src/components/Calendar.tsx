@@ -53,6 +53,14 @@ const Calendar = () => {
     verjaarsdag: { label: '🎂 Verjaarsdag', color: 'bg-accent', textColor: 'text-accent-foreground' }
   };
   
+  // Helper: format Date to YYYY-MM-DD in local time (no UTC shift)
+  const formatLocalDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
   const isMobile = useIsMobile();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const touchCurrentRef = useRef<{ x: number; y: number } | null>(null);
@@ -130,7 +138,7 @@ const Calendar = () => {
       result.push({
         id: `bday-${p.user_id}-${year}`,
         title: `${name} verjaar ${age}`,
-        event_date: birthdayThisYear.toISOString().split('T')[0],
+        event_date: formatLocalDate(birthdayThisYear),
         event_time: undefined,
         category: 'verjaarsdag',
         created_by: p.user_id,
@@ -163,7 +171,7 @@ const Calendar = () => {
         .insert([{
           title: eventForm.title.trim(),
           description: eventForm.description.trim() || null,
-          event_date: selectedDate.toISOString().split('T')[0],
+          event_date: formatLocalDate(selectedDate),
           event_time: eventForm.event_time || null,
           category: eventForm.category,
           created_by: user.id
@@ -206,7 +214,7 @@ const Calendar = () => {
   };
 
   const getEventsForDate = (date: Date) => {
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = formatLocalDate(date);
     const combined = [
       ...events.filter(event => event.event_date === dateString),
       ...birthdays.filter(event => event.event_date === dateString),
