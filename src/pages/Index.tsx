@@ -12,6 +12,7 @@ import NotificationCenter from "@/components/NotificationCenter";
 import NotificationPopup from "@/components/NotificationPopup";
 import ChatRoom from "@/components/ChatRoom";
 import UpcomingEvents from "@/components/UpcomingEvents";
+import HonorariumReport from "@/components/HonorariumReport";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 
@@ -126,6 +127,7 @@ const Index = () => {
               { id: "checkin", label: "INLOER", icon: Heart },
               { id: "learning", label: "My Leerplan", icon: BookOpen },
               { id: "calendar", label: "Kalender", icon: Calendar },
+              ...(profile?.posisie === 'HK' || profile?.posisie === 'SR' || profile?.posisie === 'Personeel' ? [{ id: "honorarium", label: "Honorarium", icon: Star }] : []),
               { id: "users", label: "Gebruikers", icon: UserCheck },
               ...(profile?.posisie === 'HK' || profile?.posisie === 'Personeel' ? [{ id: "admin", label: "Admin", icon: BarChart3 }] : []),
               { id: "profile", label: "Profiel", icon: Users },
@@ -298,6 +300,16 @@ const Index = () => {
               <p className="text-muted-foreground">Volledige Studentesake Gebeure & Skedulering</p>
             </div>
             <CalendarComponent />
+          </div>
+        )}
+
+        {activeTab === "honorarium" && (profile?.posisie === 'HK' || profile?.posisie === 'SR' || profile?.posisie === 'Personeel') && (
+          <div>
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">Honorarium Verslag</h2>
+              <p className="text-muted-foreground">Maandelikse selfassessering vir leierskap honorarium</p>
+            </div>
+            <HonorariumReport />
           </div>
         )}
 

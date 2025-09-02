@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -78,6 +78,72 @@ export type Database = {
           mood_label?: string
           mood_rating?: number
           questions_suggestions?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      honorarium_reports: {
+        Row: {
+          achievements: string | null
+          challenges: string | null
+          created_at: string
+          goal_achievement: number
+          id: string
+          improvement_areas: string | null
+          initiative_taken: number
+          leadership_effectiveness: number
+          report_month: string
+          responsibility_handling: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          suggested_honorarium: number | null
+          team_collaboration: number
+          total_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements?: string | null
+          challenges?: string | null
+          created_at?: string
+          goal_achievement: number
+          id?: string
+          improvement_areas?: string | null
+          initiative_taken: number
+          leadership_effectiveness: number
+          report_month: string
+          responsibility_handling: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          suggested_honorarium?: number | null
+          team_collaboration: number
+          total_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements?: string | null
+          challenges?: string | null
+          created_at?: string
+          goal_achievement?: number
+          id?: string
+          improvement_areas?: string | null
+          initiative_taken?: number
+          leadership_effectiveness?: number
+          report_month?: string
+          responsibility_handling?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          suggested_honorarium?: number | null
+          team_collaboration?: number
+          total_score?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -392,7 +458,7 @@ export type Database = {
     }
     Functions: {
       calculate_monthly_honorarium_impact: {
-        Args: { p_user_id: string; p_year?: number; p_month?: number }
+        Args: { p_month?: number; p_user_id: string; p_year?: number }
         Returns: number
       }
       increment_login_count: {
