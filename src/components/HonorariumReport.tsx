@@ -317,17 +317,14 @@ const HonorariumReport: React.FC = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          {userProfile?.posisie !== 'Personeel' && (
-            <TabsTrigger value="form">Nuwe Verslag</TabsTrigger>
-          )}
+          <TabsTrigger value="form">Nuwe Verslag</TabsTrigger>
           <TabsTrigger value="history">My Verslagte</TabsTrigger>
           {userProfile?.posisie === 'Personeel' && (
             <TabsTrigger value="overview">Alle Verslagte</TabsTrigger>
           )}
         </TabsList>
 
-        {userProfile?.posisie !== 'Personeel' && (
-          <TabsContent value="form">
+        <TabsContent value="form">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -445,8 +442,7 @@ const HonorariumReport: React.FC = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-        )}
+        </TabsContent>
 
         <TabsContent value="history">
           <Card>
