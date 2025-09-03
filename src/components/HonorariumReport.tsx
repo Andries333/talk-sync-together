@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText, Calendar, DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -15,11 +14,16 @@ interface HonorariumReport {
   id: string;
   user_id: string;
   report_month: string;
-  leadership_effectiveness: number;
-  team_collaboration: number;
-  initiative_taken: number;
-  responsibility_handling: number;
-  goal_achievement: number;
+  q1_leadership_vision: number;
+  q2_team_motivation: number;
+  q3_conflict_resolution: number;
+  q4_communication_skills: number;
+  q5_project_management: number;
+  q6_student_engagement: number;
+  q7_problem_solving: number;
+  q8_time_management: number;
+  q9_innovation_creativity: number;
+  q10_mentorship_support: number;
   achievements?: string;
   challenges?: string;
   improvement_areas?: string;
@@ -48,16 +52,34 @@ const HonorariumReport: React.FC = () => {
 
   // Form data
   const [formData, setFormData] = useState({
-    report_month: new Date().toISOString().slice(0, 7), // YYYY-MM format
-    leadership_effectiveness: 3,
-    team_collaboration: 3,
-    initiative_taken: 3,
-    responsibility_handling: 3,
-    goal_achievement: 3,
+    report_month: new Date().toISOString().slice(0, 7),
+    q1_leadership_vision: 3,
+    q2_team_motivation: 3,
+    q3_conflict_resolution: 3,
+    q4_communication_skills: 3,
+    q5_project_management: 3,
+    q6_student_engagement: 3,
+    q7_problem_solving: 3,
+    q8_time_management: 3,
+    q9_innovation_creativity: 3,
+    q10_mentorship_support: 3,
     achievements: '',
     challenges: '',
     improvement_areas: ''
   });
+
+  const questions = [
+    { key: 'q1_leadership_vision', label: '1. Leierskap Visie: Kan jy ander inspireer en duidelike rigting gee?' },
+    { key: 'q2_team_motivation', label: '2. Span Motivering: Hoe goed motiveer jy jou span en kollegas?' },
+    { key: 'q3_conflict_resolution', label: '3. Konflik Resolusie: Kan jy konflikte effektief hanteer en oplos?' },
+    { key: 'q4_communication_skills', label: '4. Kommunikasie Vaardighede: Hoe duidelik kommunikeer jy met ander?' },
+    { key: 'q5_project_management', label: '5. Projek Bestuur: Kan jy projekte suksesvol beplan en uitvoer?' },
+    { key: 'q6_student_engagement', label: '6. Student Betrokkenheid: Hoe goed betrek jy studente by aktiwiteite?' },
+    { key: 'q7_problem_solving', label: '7. Probleem Oplossing: Kan jy kreatiewe oplossings vir uitdagings vind?' },
+    { key: 'q8_time_management', label: '8. Tyd Bestuur: Bestuur jy jou tyd en prioriteite effektief?' },
+    { key: 'q9_innovation_creativity', label: '9. Innovasie & Kreatiwiteit: Bring jy nuwe idees en verbeteringe?' },
+    { key: 'q10_mentorship_support', label: '10. Mentorskap & Ondersteuning: Help jy ander om te groei en ontwikkel?' }
+  ];
 
   useEffect(() => {
     checkUser();
@@ -79,7 +101,6 @@ const HonorariumReport: React.FC = () => {
       if (user) {
         setUser(user);
         
-        // Fetch user profile
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -152,7 +173,7 @@ const HonorariumReport: React.FC = () => {
         .insert([{
           user_id: user.id,
           ...formData,
-          report_month: formData.report_month + '-01' // Convert to proper date format
+          report_month: formData.report_month + '-01'
         }]);
 
       if (error) throw error;
@@ -162,14 +183,18 @@ const HonorariumReport: React.FC = () => {
         description: "Honorarium verslag suksesvol ingedien"
       });
 
-      // Reset form
       setFormData({
         report_month: new Date().toISOString().slice(0, 7),
-        leadership_effectiveness: 3,
-        team_collaboration: 3,
-        initiative_taken: 3,
-        responsibility_handling: 3,
-        goal_achievement: 3,
+        q1_leadership_vision: 3,
+        q2_team_motivation: 3,
+        q3_conflict_resolution: 3,
+        q4_communication_skills: 3,
+        q5_project_management: 3,
+        q6_student_engagement: 3,
+        q7_problem_solving: 3,
+        q8_time_management: 3,
+        q9_innovation_creativity: 3,
+        q10_mentorship_support: 3,
         achievements: '',
         challenges: '',
         improvement_areas: ''
@@ -235,6 +260,19 @@ const HonorariumReport: React.FC = () => {
     return !reports.some(report => 
       report.report_month.slice(0, 7) === currentMonth
     );
+  };
+
+  const calculateCurrentScore = () => {
+    return formData.q1_leadership_vision + 
+           formData.q2_team_motivation + 
+           formData.q3_conflict_resolution + 
+           formData.q4_communication_skills + 
+           formData.q5_project_management +
+           formData.q6_student_engagement +
+           formData.q7_problem_solving +
+           formData.q8_time_management +
+           formData.q9_innovation_creativity +
+           formData.q10_mentorship_support;
   };
 
   if (loading) {
@@ -324,18 +362,17 @@ const HonorariumReport: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Selfassessering (1-5 skaal)</h3>
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Maandelikse Selfassessering (1-5 skaal)</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Beoordeel jouself eerlik op elke aspek: 1 = Swak, 2 = Onder gemiddeld, 3 = Gemiddeld, 4 = Goed, 5 = Uitstekend
+                        </p>
+                      </div>
                       
-                      {[
-                        { key: 'leadership_effectiveness', label: 'Leierskap Effektiwiteit' },
-                        { key: 'team_collaboration', label: 'Span Samewerking' },
-                        { key: 'initiative_taken', label: 'Inisiatief Geneem' },
-                        { key: 'responsibility_handling', label: 'Verantwoordelikheid Hantering' },
-                        { key: 'goal_achievement', label: 'Doelwit Bereiking' }
-                      ].map(({ key, label }) => (
-                        <div key={key} className="space-y-2">
-                          <Label>{label}</Label>
+                      {questions.map(({ key, label }) => (
+                        <div key={key} className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                          <Label className="text-sm font-medium">{label}</Label>
                           <div className="flex items-center space-x-4">
                             {[1, 2, 3, 4, 5].map((value) => (
                               <button
@@ -397,13 +434,7 @@ const HonorariumReport: React.FC = () => {
                         <span className="font-semibold">Voorlopige Honorarium Berekening</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Gebaseer op jou huidige tellings: R{(200 + ((
-                          formData.leadership_effectiveness + 
-                          formData.team_collaboration + 
-                          formData.initiative_taken + 
-                          formData.responsibility_handling + 
-                          formData.goal_achievement
-                        ) / 25) * 300).toFixed(2)}
+                        Huidige telling: {calculateCurrentScore()}/50 - Voorgestelde Honorarium: R{(300 + ((calculateCurrentScore() / 50) * 400)).toFixed(2)}
                       </p>
                     </div>
 
@@ -444,7 +475,7 @@ const HonorariumReport: React.FC = () => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <span className="text-muted-foreground">Totale Telling:</span>
-                          <div className="font-semibold">{report.total_score}/25</div>
+                          <div className="font-semibold">{report.total_score}/50</div>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Voorgestelde Honorarium:</span>
@@ -509,26 +540,22 @@ const HonorariumReport: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                           <div>
-                            <span className="text-muted-foreground">Leierskap:</span>
-                            <div className="font-semibold">{report.leadership_effectiveness}/5</div>
+                            <span className="text-muted-foreground">Totale Telling:</span>
+                            <div className="font-semibold">{report.total_score}/50</div>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Samewerking:</span>
-                            <div className="font-semibold">{report.team_collaboration}/5</div>
+                            <span className="text-muted-foreground">Gemiddeld:</span>
+                            <div className="font-semibold">{(report.total_score / 10).toFixed(1)}/5</div>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Inisiatief:</span>
-                            <div className="font-semibold">{report.initiative_taken}/5</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Verantwoordelikheid:</span>
-                            <div className="font-semibold">{report.responsibility_handling}/5</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Doelwitte:</span>
-                            <div className="font-semibold">{report.goal_achievement}/5</div>
+                            <span className="text-muted-foreground">Vlak:</span>
+                            <div className="font-semibold">
+                              {report.total_score >= 40 ? 'Uitstekend' : 
+                               report.total_score >= 30 ? 'Goed' : 
+                               report.total_score >= 20 ? 'Gemiddeld' : 'Onder Gemiddeld'}
+                            </div>
                           </div>
                         </div>
 

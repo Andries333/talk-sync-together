@@ -88,19 +88,24 @@ export type Database = {
           achievements: string | null
           challenges: string | null
           created_at: string
-          goal_achievement: number
           id: string
           improvement_areas: string | null
-          initiative_taken: number
-          leadership_effectiveness: number
+          q1_leadership_vision: number | null
+          q10_mentorship_support: number | null
+          q2_team_motivation: number | null
+          q3_conflict_resolution: number | null
+          q4_communication_skills: number | null
+          q5_project_management: number | null
+          q6_student_engagement: number | null
+          q7_problem_solving: number | null
+          q8_time_management: number | null
+          q9_innovation_creativity: number | null
           report_month: string
-          responsibility_handling: number
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
           submitted_at: string
           suggested_honorarium: number | null
-          team_collaboration: number
           total_score: number | null
           updated_at: string
           user_id: string
@@ -109,19 +114,24 @@ export type Database = {
           achievements?: string | null
           challenges?: string | null
           created_at?: string
-          goal_achievement: number
           id?: string
           improvement_areas?: string | null
-          initiative_taken: number
-          leadership_effectiveness: number
+          q1_leadership_vision?: number | null
+          q10_mentorship_support?: number | null
+          q2_team_motivation?: number | null
+          q3_conflict_resolution?: number | null
+          q4_communication_skills?: number | null
+          q5_project_management?: number | null
+          q6_student_engagement?: number | null
+          q7_problem_solving?: number | null
+          q8_time_management?: number | null
+          q9_innovation_creativity?: number | null
           report_month: string
-          responsibility_handling: number
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
           suggested_honorarium?: number | null
-          team_collaboration: number
           total_score?: number | null
           updated_at?: string
           user_id: string
@@ -130,19 +140,24 @@ export type Database = {
           achievements?: string | null
           challenges?: string | null
           created_at?: string
-          goal_achievement?: number
           id?: string
           improvement_areas?: string | null
-          initiative_taken?: number
-          leadership_effectiveness?: number
+          q1_leadership_vision?: number | null
+          q10_mentorship_support?: number | null
+          q2_team_motivation?: number | null
+          q3_conflict_resolution?: number | null
+          q4_communication_skills?: number | null
+          q5_project_management?: number | null
+          q6_student_engagement?: number | null
+          q7_problem_solving?: number | null
+          q8_time_management?: number | null
+          q9_innovation_creativity?: number | null
           report_month?: string
-          responsibility_handling?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
           suggested_honorarium?: number | null
-          team_collaboration?: number
           total_score?: number | null
           updated_at?: string
           user_id?: string
