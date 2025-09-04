@@ -29,6 +29,9 @@ const Calendar = () => {
   const [birthdays, setBirthdays] = useState<CalendarEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDayViewOpen, setIsDayViewOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [eventForm, setEventForm] = useState({
     title: '',
     description: '',
@@ -86,6 +89,7 @@ const Calendar = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchUserProfile();
     
     // Real-time subscription
     const channel = supabase
@@ -100,6 +104,20 @@ const Calendar = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchUserProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+    
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      setProfile(profile);
+    }
+  };
 
   const fetchEvents = async () => {
     const { data, error } = await supabase
@@ -239,7 +257,30 @@ const Calendar = () => {
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
+    setIsDayViewOpen(true);
+  };
+
+  const handleAddNewEvent = () => {
+    setIsDayViewOpen(false);
     setIsDialogOpen(true);
+  };
+
+  const deleteEvent = async (eventId: string) => {
+    try {
+      const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .eq('id', eventId);
+
+      if (error) {
+        toast("Fout: Kon nie gebeurtenis verwyder nie");
+      } else {
+        toast("Sukses: Gebeurtenis verwyder");
+        fetchEvents();
+      }
+    } catch (error) {
+      toast("Fout: Kon nie gebeurtenis verwyder nie");
+    }
   };
 
   const days = getDaysInMonth(currentDate);
@@ -279,7 +320,7 @@ const Calendar = () => {
 
         {/* Calendar Grid */}
         <div
-          className="grid grid-cols-7 gap-1 sm:gap-3 p-1 sm:p-2 select-none"
+          className="grid grid-cols-7 gap-1 sm:gap-3 p-1 sm:p-2 select-none overflow-auto max-h-[80vh]"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -290,7 +331,7 @@ const Calendar = () => {
               key={day}
               className="p-2 sm:p-4 text-center font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-xl shadow-sm text-[10px] sm:text-base"
             >
-              {isMobile ? day.slice(0, 1) : day.slice(0, 3)}
+              {isMobile ? day.slice(0, 2) : day}
             </div>
           ))}
           
@@ -349,6 +390,96 @@ const Calendar = () => {
             ))}
         </div>
 
+        {/* Day View Dialog */}
+        <Dialog open={isDayViewOpen} onOpenChange={setIsDayViewOpen}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background to-muted/30 border-0 shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Gebeurtenisse vir 
+                {selectedDate && (
+                  <span className="block text-lg font-normal text-muted-foreground mt-2">
+                    📅 {selectedDate.toLocaleDateString('af-ZA', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Events List */}
+              <div className="space-y-4">
+                {selectedDate && getEventsForDate(selectedDate).length > 0 ? (
+                  getEventsForDate(selectedDate).map((event) => {
+                    const category = categories[event.category as keyof typeof categories] || categories.ander;
+                    const canEdit = profile?.posisie === 'Personeel' || event.created_by === user?.id;
+                    
+                    return (
+                      <div key={event.id} className="p-4 border rounded-lg bg-card space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge className={`${category.color} ${category.textColor}`}>
+                                {category.label}
+                              </Badge>
+                              {event.event_time && (
+                                <span className="text-sm text-muted-foreground">
+                                  🕐 {event.event_time}
+                                </span>
+                              )}
+                            </div>
+                            <h4 className="font-semibold text-lg">{event.title}</h4>
+                            {event.description && (
+                              <p className="text-muted-foreground mt-1">{event.description}</p>
+                            )}
+                          </div>
+                          
+                          {canEdit && event.category !== 'verjaarsdag' && (
+                            <div className="flex gap-2 ml-4">
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteEvent(event.id)}
+                                className="h-8 px-3"
+                              >
+                                🗑️
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Geen gebeurtenisse vir hierdie dag nie</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button 
+                  onClick={handleAddNewEvent}
+                  className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                >
+                  ➕ Voeg Nuwe Gebeurtenis By
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDayViewOpen(false)} 
+                  className="flex-1 hover:bg-muted/50 transition-all duration-200"
+                >
+                  ❌ Sluit
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Add Event Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-md bg-gradient-to-br from-background to-muted/30 border-0 shadow-2xl">
@@ -396,7 +527,7 @@ const Calendar = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(categories).map(([key, category]) => (
+                    {Object.entries(categories).filter(([key]) => key !== 'verjaarsdag').map(([key, category]) => (
                       <SelectItem key={key} value={key}>
                         {category.label}
                       </SelectItem>
