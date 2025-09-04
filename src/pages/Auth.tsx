@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import { User, Session } from '@supabase/supabase-js';
@@ -30,7 +31,12 @@ const Auth = () => {
     firstName: '',
     lastName: '',
     studierigting: '',
-    posisieHkSr: ''
+    posisieHkSr: '',
+    userType: 'student', // student or personeel
+    afdeling: '', // Studentesake or Akademie
+    afdelingsposisie: '', // Specific position under department
+    isKoshuisvoog: false,
+    koshuis: ''
   });
 
   useEffect(() => {
@@ -113,7 +119,12 @@ const Auth = () => {
             first_name: signupForm.firstName,
             last_name: signupForm.lastName,
             studierigting: signupForm.studierigting,
-            posisie_hk_sr: signupForm.posisieHkSr
+            posisie_hk_sr: signupForm.posisieHkSr,
+            user_type: signupForm.userType,
+            afdeling: signupForm.afdeling,
+            afdelingsposisie: signupForm.afdelingsposisie,
+            is_koshuisvoog: signupForm.isKoshuisvoog,
+            koshuis: signupForm.koshuis
           }
         }
       });
@@ -133,7 +144,12 @@ const Auth = () => {
           firstName: '',
           lastName: '',
           studierigting: '',
-          posisieHkSr: ''
+          posisieHkSr: '',
+          userType: 'student',
+          afdeling: '',
+          afdelingsposisie: '',
+          isKoshuisvoog: false,
+          koshuis: ''
         });
       }
     } catch (error) {
@@ -224,6 +240,29 @@ const Auth = () => {
                 </div>
                 
                 <div>
+                  <Label htmlFor="user-type">Ek is 'n *</Label>
+                  <Select 
+                    value={signupForm.userType} 
+                    onValueChange={(value) => setSignupForm({ 
+                      ...signupForm, 
+                      userType: value,
+                      afdeling: '',
+                      afdelingsposisie: '',
+                      isKoshuisvoog: false,
+                      koshuis: ''
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kies gebruiker tipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="personeel">Personeellid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
                   <Label htmlFor="signup-email">Email *</Label>
                   <Input
                     id="signup-email"
@@ -235,25 +274,123 @@ const Auth = () => {
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="studierigting">Studierigting</Label>
-                  <Input
-                    id="studierigting"
-                    value={signupForm.studierigting}
-                    onChange={(e) => setSignupForm({ ...signupForm, studierigting: e.target.value })}
-                    placeholder="Bv. B.Sc Landbou, B.Com, B.A"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="posisie">Posisie op HK/SR</Label>
-                  <Input
-                    id="posisie"
-                    value={signupForm.posisieHkSr}
-                    onChange={(e) => setSignupForm({ ...signupForm, posisieHkSr: e.target.value })}
-                    placeholder="Bv. HK Voorsitter, SR Lid, Geen"
-                  />
-                </div>
+                {signupForm.userType === 'student' && (
+                  <>
+                    <div>
+                      <Label htmlFor="studierigting">Studierigting</Label>
+                      <Input
+                        id="studierigting"
+                        value={signupForm.studierigting}
+                        onChange={(e) => setSignupForm({ ...signupForm, studierigting: e.target.value })}
+                        placeholder="Bv. B.Sc Landbou, B.Com, B.A"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="posisie">Posisie op HK/SR</Label>
+                      <Input
+                        id="posisie"
+                        value={signupForm.posisieHkSr}
+                        onChange={(e) => setSignupForm({ ...signupForm, posisieHkSr: e.target.value })}
+                        placeholder="Bv. HK Voorsitter, SR Lid, Geen"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {signupForm.userType === 'personeel' && (
+                  <>
+                    <div>
+                      <Label htmlFor="afdeling">Afdeling *</Label>
+                      <Select 
+                        value={signupForm.afdeling} 
+                        onValueChange={(value) => setSignupForm({ 
+                          ...signupForm, 
+                          afdeling: value,
+                          afdelingsposisie: ''
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Kies afdeling" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Studentesake">Studentesake</SelectItem>
+                          <SelectItem value="Akademie">Akademie</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {signupForm.afdeling && (
+                      <div>
+                        <Label htmlFor="afdelingsposisie">Posisie *</Label>
+                        <Select 
+                          value={signupForm.afdelingsposisie} 
+                          onValueChange={(value) => setSignupForm({ ...signupForm, afdelingsposisie: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Kies posisie" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {signupForm.afdeling === 'Studentesake' && (
+                              <>
+                                <SelectItem value="Hoof">Hoof</SelectItem>
+                                <SelectItem value="Studentesteun">Studentesteun</SelectItem>
+                                <SelectItem value="Beampte">Beampte</SelectItem>
+                                <SelectItem value="Intern">Intern</SelectItem>
+                              </>
+                            )}
+                            {signupForm.afdeling === 'Akademie' && (
+                              <>
+                                <SelectItem value="Lektor">Lektor</SelectItem>
+                                <SelectItem value="Afdelingshoof">Afdelingshoof</SelectItem>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="koshuisvoog">Is jy 'n Koshuisvoog?</Label>
+                      <Select 
+                        value={signupForm.isKoshuisvoog ? 'ja' : 'nee'} 
+                        onValueChange={(value) => setSignupForm({ 
+                          ...signupForm, 
+                          isKoshuisvoog: value === 'ja',
+                          koshuis: value === 'nee' ? '' : signupForm.koshuis
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Kies" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nee">Nee</SelectItem>
+                          <SelectItem value="ja">Ja</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {signupForm.isKoshuisvoog && (
+                      <div>
+                        <Label htmlFor="koshuis">Watter Koshuis? *</Label>
+                        <Select 
+                          value={signupForm.koshuis} 
+                          onValueChange={(value) => setSignupForm({ ...signupForm, koshuis: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Kies koshuis" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Vaalbos">Vaalbos</SelectItem>
+                            <SelectItem value="Heldehuis">Heldehuis</SelectItem>
+                            <SelectItem value="Steenbok">Steenbok</SelectItem>
+                            <SelectItem value="Duiker">Duiker</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </>
+                )}
                 
                 <div>
                   <Label htmlFor="signup-password">Wagwoord *</Label>
