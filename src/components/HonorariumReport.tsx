@@ -425,15 +425,6 @@ const HonorariumReport: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="bg-muted p-4 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="font-semibold">Voorlopige Honorarium Berekening</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Huidige telling: {calculateCurrentScore()}/50 - Voorgestelde Honorarium: R{(300 + ((calculateCurrentScore() / 50) * 400)).toFixed(2)}
-                      </p>
-                    </div>
 
                     <Button type="submit" disabled={submitting} className="w-full">
                       {submitting ? 'Dien In...' : 'Dien Verslag In'}
