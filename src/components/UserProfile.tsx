@@ -161,6 +161,10 @@ const UserProfile = () => {
           posisie: editForm.posisie,
           koshuis: editForm.koshuis,
           telefoonnommer: editForm.telefoonnommer,
+          afdeling: editForm.afdeling,
+          afdelingsposisie: editForm.afdelingsposisie,
+          is_koshuisvoog: editForm.isKoshuisvoog,
+          koshuisvoog_koshuis: editForm.koshuisvoogKoshuis,
         };
 
         // Only include studierigting if position is not "Personeel"
@@ -338,6 +342,44 @@ const UserProfile = () => {
               </div>
             </div>
 
+            {/* Personeel spesifieke velde */}
+            {profile.posisie === 'Personeel' && (
+              <>
+                {(profile as any).afdeling && (
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Afdeling</Label>
+                    <div className="mt-1">
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                        🏢 {(profile as any).afdeling}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                
+                {(profile as any).afdelingsposisie && (
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Afdelingsposisie</Label>
+                    <div className="mt-1">
+                      <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">
+                        👔 {(profile as any).afdelingsposisie}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                
+                {(profile as any).is_koshuisvoog && (
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Koshuisvoog</Label>
+                    <div className="mt-1">
+                      <Badge variant="secondary" className="bg-green-50 text-green-700">
+                        🏠 {(profile as any).koshuisvoog_koshuis || 'Koshuisvoog'}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             {/* Ou Posisie veld (legacy) */}
             {profile.posisie_hk_sr && (
               <div>
@@ -480,6 +522,60 @@ const UserProfile = () => {
                       required
                     />
                   </div>
+                  
+                  {/* Personeel spesifieke velde */}
+                  {editForm.posisie === 'Personeel' && (
+                    <>
+                      <div>
+                        <Label htmlFor="edit-afdeling">Afdeling</Label>
+                        <Input
+                          id="edit-afdeling"
+                          value={editForm.afdeling}
+                          onChange={(e) => setEditForm({ ...editForm, afdeling: e.target.value })}
+                          placeholder="Bv. Studentesake, Akademies"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="edit-afdelingsposisie">Afdelingsposisie</Label>
+                        <Input
+                          id="edit-afdelingsposisie"
+                          value={editForm.afdelingsposisie}
+                          onChange={(e) => setEditForm({ ...editForm, afdelingsposisie: e.target.value })}
+                          placeholder="Bv. Hoof, Assistent, Koordineerder"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="edit-is-koshuisvoog"
+                          checked={editForm.isKoshuisvoog}
+                          onChange={(e) => setEditForm({ ...editForm, isKoshuisvoog: e.target.checked })}
+                          className="rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <Label htmlFor="edit-is-koshuisvoog">Is Koshuisvoog</Label>
+                      </div>
+                      
+                      {editForm.isKoshuisvoog && (
+                        <div>
+                          <Label htmlFor="edit-koshuisvoog-koshuis">Koshuisvoog vir Koshuis</Label>
+                          <Select value={editForm.koshuisvoogKoshuis} onValueChange={(value) => setEditForm({ ...editForm, koshuisvoogKoshuis: value })}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Kies koshuis" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {KOSHUIS_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </>
+                  )}
                   
                   <div>
                     <Label htmlFor="edit-posisie-ou">Posisie op HK/SR (Ou veld)</Label>
