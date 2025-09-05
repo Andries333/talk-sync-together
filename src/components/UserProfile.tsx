@@ -161,10 +161,6 @@ const UserProfile = () => {
           posisie: editForm.posisie,
           koshuis: editForm.koshuis,
           telefoonnommer: editForm.telefoonnommer,
-          afdeling: editForm.afdeling,
-          afdelingsposisie: editForm.afdelingsposisie,
-          is_koshuisvoog: editForm.isKoshuisvoog,
-          koshuisvoog_koshuis: editForm.koshuisvoogKoshuis,
         };
 
         // Only include studierigting if position is not "Personeel"
