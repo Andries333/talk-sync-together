@@ -106,10 +106,10 @@ const UserProfile = () => {
             posisie: data.posisie || '',
             koshuis: data.koshuis || '',
             telefoonnommer: data.telefoonnommer || '',
-            afdeling: data.afdeling || '',
-            afdelingsposisie: data.afdelingsposisie || '',
-            isKoshuisvoog: data.is_koshuisvoog || false,
-            koshuisvoogKoshuis: data.koshuisvoog_koshuis || '',
+            afdeling: (data as any).afdeling || '',
+            afdelingsposisie: (data as any).afdelingsposisie || '',
+            isKoshuisvoog: (data as any).is_koshuisvoog || false,
+            koshuisvoogKoshuis: (data as any).koshuisvoog_koshuis || '',
           });
           
           if (data.verjaarsdag) {
