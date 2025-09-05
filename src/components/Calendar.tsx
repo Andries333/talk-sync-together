@@ -269,6 +269,12 @@ const Calendar = () => {
     try {
       console.log('Attempting to delete event with ID:', eventId);
       
+      // Check if it's a static event (can't be deleted)
+      if (eventId.startsWith('static-')) {
+        toast.error("Kan nie statiese kalender gebeurtenisse verwyder nie");
+        return;
+      }
+      
       const { error } = await supabase
         .from('calendar_events')
         .delete()
@@ -442,7 +448,7 @@ const Calendar = () => {
                             )}
                           </div>
                           
-                          {canEdit && event.category !== 'verjaarsdag' && (
+                          {canEdit && event.category !== 'verjaarsdag' && !event.id.startsWith('static-') && (
                             <div className="flex gap-2 ml-4">
                               <Button
                                 size="sm"
