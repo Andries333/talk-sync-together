@@ -31,6 +31,10 @@ interface Profile {
   profile_completion_count: number;
   created_at: string;
   updated_at: string;
+  afdeling?: string | null;
+  afdelingsposisie?: string | null;
+  is_koshuisvoog?: boolean | null;
+  koshuisvoog_koshuis?: string | null;
 }
 
 const POSISIE_OPTIONS = [
@@ -69,6 +73,10 @@ const UserProfile = () => {
     posisie: '',
     koshuis: '',
     telefoonnommer: '',
+    afdeling: '',
+    afdelingsposisie: '',
+    isKoshuisvoog: false,
+    koshuisvoogKoshuis: '',
   });
 
   useEffect(() => {
@@ -98,6 +106,10 @@ const UserProfile = () => {
             posisie: data.posisie || '',
             koshuis: data.koshuis || '',
             telefoonnommer: data.telefoonnommer || '',
+            afdeling: data.afdeling || '',
+            afdelingsposisie: data.afdelingsposisie || '',
+            isKoshuisvoog: data.is_koshuisvoog || false,
+            koshuisvoogKoshuis: data.koshuisvoog_koshuis || '',
           });
           
           if (data.verjaarsdag) {
