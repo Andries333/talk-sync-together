@@ -267,19 +267,24 @@ const Calendar = () => {
 
   const deleteEvent = async (eventId: string) => {
     try {
+      console.log('Attempting to delete event with ID:', eventId);
+      
       const { error } = await supabase
         .from('calendar_events')
         .delete()
         .eq('id', eventId);
 
       if (error) {
-        toast("Fout: Kon nie gebeurtenis verwyder nie");
+        console.error('Delete error:', error);
+        toast.error(`Fout: ${error.message}`);
       } else {
-        toast("Sukses: Gebeurtenis verwyder");
+        console.log('Event deleted successfully');
+        toast.success("Gebeurtenis suksesvol verwyder");
         fetchEvents();
       }
     } catch (error) {
-      toast("Fout: Kon nie gebeurtenis verwyder nie");
+      console.error('Unexpected error:', error);
+      toast.error("Onverwagte fout: Kon nie gebeurtenis verwyder nie");
     }
   };
 
