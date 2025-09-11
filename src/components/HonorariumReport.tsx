@@ -32,6 +32,7 @@ interface HonorariumReport {
   status: string;
   submitted_at: string;
   reviewed_at?: string;
+  admin_comments?: string;
   profiles?: {
     first_name: string;
     last_name: string;
@@ -48,6 +49,7 @@ const HonorariumReport: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [reports, setReports] = useState<HonorariumReport[]>([]);
   const [allReports, setAllReports] = useState<HonorariumReport[]>([]);
+  const [adminComments, setAdminComments] = useState<{[key: string]: string}>({});
   const { toast } = useToast();
 
   // Form data
@@ -213,15 +215,21 @@ const HonorariumReport: React.FC = () => {
     }
   };
 
-  const updateReportStatus = async (reportId: string, status: string) => {
+  const updateReportStatus = async (reportId: string, status: string, comments?: string) => {
     try {
+      const updateData: any = { 
+        status,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: user.id
+      };
+      
+      if (comments !== undefined) {
+        updateData.admin_comments = comments;
+      }
+
       const { error } = await supabase
         .from('honorarium_reports')
-        .update({ 
-          status,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: user.id
-        })
+        .update(updateData)
         .eq('id', reportId);
 
       if (error) throw error;
@@ -229,6 +237,13 @@ const HonorariumReport: React.FC = () => {
       toast({
         title: "Sukses",
         description: `Verslag status opdateer na ${status}`
+      });
+
+      // Clear local comments
+      setAdminComments(prev => {
+        const newComments = { ...prev };
+        delete newComments[reportId];
+        return newComments;
       });
 
       fetchAllReports();
@@ -474,16 +489,23 @@ const HonorariumReport: React.FC = () => {
                             {new Date(report.submitted_at).toLocaleDateString('af-ZA')}
                           </div>
                         </div>
-                        {report.reviewed_at && (
-                          <div>
-                            <span className="text-muted-foreground">Beskou:</span>
-                            <div className="font-semibold">
-                              {new Date(report.reviewed_at).toLocaleDateString('af-ZA')}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                         {report.reviewed_at && (
+                           <div>
+                             <span className="text-muted-foreground">Beskou:</span>
+                             <div className="font-semibold">
+                               {new Date(report.reviewed_at).toLocaleDateString('af-ZA')}
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                       
+                       {report.admin_comments && (
+                         <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                           <h5 className="font-semibold text-sm mb-2">Admin Opmerkings:</h5>
+                           <p className="text-sm">{report.admin_comments}</p>
+                         </div>
+                       )}
+                     </div>
                   ))}
                 </div>
               )}
@@ -546,36 +568,74 @@ const HonorariumReport: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          {getStatusBadge(report.status)}
-                          <div className="space-x-2">
-                            {report.status === 'submitted' && (
-                              <>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => updateReportStatus(report.id, 'reviewed')}
-                                >
-                                  Merk as Beskou
-                                </Button>
-                                <Button 
-                                  size="sm"
-                                  onClick={() => updateReportStatus(report.id, 'approved')}
-                                >
-                                  Keur Goed
-                                </Button>
-                              </>
-                            )}
-                            {report.status === 'reviewed' && (
-                              <Button 
-                                size="sm"
-                                onClick={() => updateReportStatus(report.id, 'approved')}
-                              >
-                                Keur Goed
-                              </Button>
-                            )}
-                          </div>
-                        </div>
+                         {report.status !== 'approved' && userProfile?.posisie === 'Personeel' && (
+                           <div className="mt-4">
+                             <Label htmlFor={`comments-${report.id}`} className="text-sm font-medium">
+                               Admin Opmerkings:
+                             </Label>
+                             <Textarea
+                               id={`comments-${report.id}`}
+                               placeholder="Voeg opmerkings by vir die student..."
+                               value={adminComments[report.id] || report.admin_comments || ''}
+                               onChange={(e) => setAdminComments(prev => ({ 
+                                 ...prev, 
+                                 [report.id]: e.target.value 
+                               }))}
+                               rows={3}
+                               className="mt-2"
+                             />
+                           </div>
+                         )}
+
+                         <div className="flex items-center justify-between mt-4">
+                           {getStatusBadge(report.status)}
+                           <div className="space-x-2">
+                             {report.status === 'submitted' && userProfile?.posisie === 'Personeel' && (
+                               <>
+                                 <Button 
+                                   size="sm" 
+                                   variant="outline"
+                                   onClick={() => updateReportStatus(
+                                     report.id, 
+                                     'reviewed', 
+                                     adminComments[report.id] || report.admin_comments
+                                   )}
+                                 >
+                                   Merk as Beskou
+                                 </Button>
+                                 <Button 
+                                   size="sm"
+                                   onClick={() => updateReportStatus(
+                                     report.id, 
+                                     'approved', 
+                                     adminComments[report.id] || report.admin_comments
+                                   )}
+                                 >
+                                   Keur Goed
+                                 </Button>
+                               </>
+                             )}
+                             {report.status === 'reviewed' && userProfile?.posisie === 'Personeel' && (
+                               <Button 
+                                 size="sm"
+                                 onClick={() => updateReportStatus(
+                                   report.id, 
+                                   'approved', 
+                                   adminComments[report.id] || report.admin_comments
+                                 )}
+                               >
+                                 Keur Goed
+                               </Button>
+                             )}
+                           </div>
+                         </div>
+                         
+                         {report.admin_comments && report.status === 'approved' && (
+                           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                             <h5 className="font-semibold text-sm mb-2 text-green-800">Final Admin Opmerkings:</h5>
+                             <p className="text-sm text-green-700">{report.admin_comments}</p>
+                           </div>
+                         )}
                       </div>
                     ))}
                   </div>

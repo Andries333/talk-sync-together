@@ -86,6 +86,7 @@ export type Database = {
       honorarium_reports: {
         Row: {
           achievements: string | null
+          admin_comments: string | null
           challenges: string | null
           created_at: string
           id: string
@@ -112,6 +113,7 @@ export type Database = {
         }
         Insert: {
           achievements?: string | null
+          admin_comments?: string | null
           challenges?: string | null
           created_at?: string
           id?: string
@@ -138,6 +140,7 @@ export type Database = {
         }
         Update: {
           achievements?: string | null
+          admin_comments?: string | null
           challenges?: string | null
           created_at?: string
           id?: string
