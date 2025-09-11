@@ -440,6 +440,47 @@ const UserProfile = () => {
                     </Select>
                   </div>
 
+                  {/* HK/SR Position Dropdown */}
+                  {(editForm.posisie === 'HK' || editForm.posisie === 'SR') && (
+                    <div>
+                      <Label htmlFor="edit-posisie-hk-sr">
+                        {editForm.posisie === 'HK' ? 'HK Posisie' : 'SR Posisie'} *
+                      </Label>
+                      <Select value={editForm.posisieHkSr} onValueChange={(value) => setEditForm({ ...editForm, posisieHkSr: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={`Kies jou ${editForm.posisie === 'HK' ? 'HK' : 'SR'} posisie`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {editForm.posisie === 'HK' && [
+                            { value: 'Prim', label: 'Prim' },
+                            { value: 'Onder prim', label: 'Onder prim' },
+                            { value: 'Student ondersteuning', label: 'Student ondersteuning' },
+                            { value: 'Sosiaal', label: 'Sosiaal' },
+                            { value: 'Sport en kultuur', label: 'Sport en kultuur' },
+                            { value: 'Terrein en dissipline', label: 'Terrein en dissipline' }
+                          ].map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                          
+                          {editForm.posisie === 'SR' && [
+                            { value: 'Voorsitter', label: 'Voorsitter' },
+                            { value: 'Ondervoorsitter', label: 'Ondervoorsitter' },
+                            { value: 'Sekretaris', label: 'Sekretaris' },
+                            { value: 'Sport', label: 'Sport' },
+                            { value: 'Kultuur', label: 'Kultuur' },
+                            { value: 'Studente ondersteuning', label: 'Studente ondersteuning' }
+                          ].map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   {/* Studierigting - Only show if not Personeel */}
                   {editForm.posisie !== 'Personeel' && (
                     <div>

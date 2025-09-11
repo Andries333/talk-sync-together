@@ -32,7 +32,9 @@ const Index = () => {
         
         // Fetch profile data when user logs in
         if (session?.user) {
-          fetchProfile(session.user.id);
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
         }
