@@ -337,7 +337,7 @@ const Index = () => {
           </div>
         )}
 
-        {activeTab === "admin" && (profile?.posisie === 'Personeel') && (
+        {activeTab === "admin" && (profile?.posisie === 'HK' || profile?.posisie === 'Personeel') && (
           <div>
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-semibold text-foreground mb-2">Admin Dashboard</h2>
